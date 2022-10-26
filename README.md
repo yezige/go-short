@@ -32,3 +32,15 @@ location ^~ /s/ {
   proxy_pass http://short:8088/;
 }
 ```
+
+### redis 增加对应 key
+
+set goshort:path:trace https://raw.githubusercontent.com/yezige/trace/main/run.sh
+
+### 成功
+
+则可使用短链接访问
+
+```bash
+curl liu.app/s/trace | bash
+```
