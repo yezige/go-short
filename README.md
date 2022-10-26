@@ -16,13 +16,13 @@ mv config_production.yaml.example /data/config_production.yaml
 
 ```bash
 docker build -t short .
-docker run -dp 8088:8088 -v "/data/log:/var/log/short.liu.app" -v "/data/config_production.yaml:/short.liu.app/config_production.yaml" --name short short
+docker run -d --expose 8088 -v "/data/log:/var/log/short.liu.app" -v "/data/config_production.yaml:/short.liu.app/config_production.yaml" --name short short
 ```
 
 2. 或者直接运行我编译好的
 
 ```bash
-docker run -dp 8088:8088 -v "/data/log:/var/log/short.liu.app" -v "/data/config_production.yaml:/short.liu.app/config_production.yaml" ghcr.io/yezige/short.liu.app:latest --name short
+docker run -d --expose 8088 -v "/data/log:/var/log/short.liu.app" -v "/data/config_production.yaml:/short.liu.app/config_production.yaml" --name short ghcr.io/yezige/short.liu.app:latest
 ```
 
 ### 增加 nginx
