@@ -1,0 +1,24 @@
+core:
+  enabled: true # enable httpd server
+  address: "" # ip address to bind (default: any)
+  port: "8088" # ignore this port number if auto_tls is enabled (listen 443).
+  worker_num: 0 # default worker number is runtime.NumCPU()
+  mode: "release" # release mode or debug mode
+  shutdown_timeout: 30 # default is 30 second
+  pid:
+    enabled: true
+    path: "app.pid"
+    override: true
+
+log:
+  format: "string" # string or json
+  access_log: "stdout" # stdout: output to console, or define log path like "log/access_log"
+  access_level: "debug"
+  error_log: "stderr" # stderr: output to console, or define log path like "log/error_log"
+  error_level: "error"
+  hide_token: true
+
+redis:
+  addr: "redis:6379"
+  password: ""
+  db: 0

@@ -1,0 +1,64 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '**'
+      - '!**-alpha'
+env:
+  IMAGE_NAME: short.liu.app
+
+jobs:
+  push-ghcr:
+    runs-on: ubuntu-20.04
+    env:
+      TZ: Asia/Shanghai
+      REGISTRY: ghcr.io
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set output
+        id: set-output-id
+        run: |
+          VERSION=edge
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo ::set-output name=tags::${VERSION}
+
+      - name: Login
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build && Push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.set-output-id.outputs.tags }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+  sync:
+    needs: push-ghcr
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      HOST_IP: ${{ secrets.HOST_IP }}
+      HOST_PORT: ${{ secrets.HOST_PORT }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set private key
+        # set kikiku_service private key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ env.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ env.HOST_PORT }} ${{ env.HOST_IP }} >> ~/.ssh/known_hosts
+
+      - name: Update source folder
+        run: ssh -p ${{ env.HOST_PORT }} www-data@${{ env.HOST_IP }} "cd /data/docker/dnmp/data/www/short.liu.app/ && git pull && git submodule update --init --recursive --remote && echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u yezige --password-stdin && docker pull ghcr.io/yezige/${{ env.IMAGE_NAME }}:latest && /usr/local/bin/docker-compose up -d short && docker exec -i nginx nginx -s reload && exit"

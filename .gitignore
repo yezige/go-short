@@ -1,0 +1,6 @@
+.*/*
+!.github/*
+app
+app.exe
+*.pid
+log/*
