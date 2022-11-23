@@ -29,4 +29,4 @@ EXPOSE 8088
 
 ENTRYPOINT ["./short"]
 
-CMD ["-config", "./config_production.yaml", ">/var/log/short.liu.app/error_log", "2>&1"]
+CMD ["-config", "./config_production.yaml"]

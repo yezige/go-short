@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -47,6 +48,18 @@ func main() {
 		logx.LogError.Fatal(err)
 		log.Fatalf("can't load log module, error: %v", err)
 	}
+
+	// set log output
+	f, err := os.OpenFile(cfg.Log.ErrorLog, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		return
+	}
+	defer func() {
+		f.Close()
+	}()
+	multiWriter := io.MultiWriter(os.Stdout, f)
+	log.SetOutput(multiWriter)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	// 保存到pid文件
 	if err = createPIDFile(cfg); err != nil {
