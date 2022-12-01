@@ -46,18 +46,16 @@ jobs:
     needs: push-ghcr
     runs-on: ubuntu-latest
     env:
-      DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      HOST_KEY_SSH: ${{ secrets.HOST_KEY_SSH }}
       HOST_IP: ${{ secrets.HOST_IP }}
       HOST_PORT: ${{ secrets.HOST_PORT }}
       HOST_USER: ${{ secrets.HOST_USER }}
     steps:
-      - uses: actions/checkout@v2
-
       - name: Set private key
-        # set kikiku_service private key
+        # set liu_ssh private key
         run: |
           mkdir -p ~/.ssh/
-          echo "${{ env.DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ env.HOST_KEY_SSH }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p ${{ env.HOST_PORT }} ${{ env.HOST_IP }} >> ~/.ssh/known_hosts
 
